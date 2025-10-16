@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор дохода с курса</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 30px;
+            padding: 40px 30px;
+            max-width: 480px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            font-size: 15px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .proof-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 12px;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 16px 20px;
+            font-size: 17px;
+            font-weight: 500;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            background: #f9fafb;
+            color: #1a1a1a;
+            transition: all 0.3s ease;
+            -webkit-appearance: none;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        }
+
+        .hint {
+            font-size: 13px;
+            color: #9ca3af;
+            margin-top: 6px;
+            padding-left: 4px;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 17px;
+            font-weight: 700;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            margin: 30px 0 20px 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(102, 126, 234, 0.5);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            display: none;
+            margin-top: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 20px;
+            box-shadow: 0 12px 30px rgba(16, 185, 129, 0.3);
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .result-label {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .result-amount {
+            font-size: 48px;
+            font-weight: 800;
+            color: white;
+            letter-spacing: -1px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-period {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 4px;
+        }
+
+        .breakdown {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            margin-top: 20px;
+        }
+
+        .breakdown-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .breakdown-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 500;
+        }
+
+        .breakdown-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .motivation {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        .motivation-text {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.95);
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .motivation-text strong {
+            color: white;
+            font-weight: 700;
+        }
+
+        .price-suggestions {
+            margin-bottom: 20px;
+            padding: 16px;
+            background: #f0fdf4;
+            border-radius: 14px;
+            border: 1px solid #86efac;
+        }
+
+        .suggestion-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #166534;
+            margin-bottom: 12px;
+        }
+
+        .suggestion-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .suggestion-btn {
+            padding: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #166534;
+            background: white;
+            border: 2px solid #86efac;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .suggestion-btn:hover {
+            background: #dcfce7;
+            border-color: #22c55e;
+            transform: translateY(-1px);
+        }
+
+        .suggestion-btn:active {
+            transform: translateY(0);
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 13px;
+            color: #9ca3af;
+            line-height: 1.5;
+        }
+
+        .emoji {
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: white;
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+
+        .warning {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 16px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .warning-text {
+            font-size: 14px;
+            color: #92400e;
+            line-height: 1.5;
+        }
+
+        .cta-button {
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a1a;
+            background: white;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .result-amount {
+                font-size: 40px;
+            }
+
+            .suggestion-buttons {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 6px;
+            }
+
+            .suggestion-btn {
+                padding: 10px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="emoji">💰</div>
+            <h1>Калькулятор дохода с курса</h1>
+            <p>Узнай реальный потенциал заработка с твоей текущей аудитории</p>
+            <div class="proof-badge">✓ Проверено на запуске 1 млн ₽</div>
+        </div>
+
+        <form id="calculator-form">
+            <div class="input-group">
+                <label for="followers">Подписчиков в Instagram</label>
+                <div class="input-wrapper">
+                    <input 
+                        type="number" 
+                        id="followers" 
+                        placeholder="1500" 
+                        min="0"
+                        required
+                    >
+                </div>
+                <div class="hint">Текущее количество подписчиков</div>
+            </div>
+
+            <div class="input-group">
+                <label for="reels">Средние охваты на Reels</label>
+                <div class="input-wrapper">
+                    <input 
+                        type="number" 
+                        id="reels" 
+                        placeholder="5000" 
+                        min="0"
+                        required
+                    >
+                </div>
+                <div class="hint">Среднее количество просмотров Reels</div>
+            </div>
+
+            <div class="input-group">
+                <label for="stories">Просмотры Stories</label>
+                <div class="input-wrapper">
+                    <input 
+                        type="number" 
+                        id="stories" 
+                        placeholder="500" 
+                        min="0"
+                        required
+                    >
+                </div>
+                <div class="hint">Среднее количество просмотров Stories</div>
+            </div>
+
+            <div class="input-group">
+                <label for="price">Цена твоего курса</label>
+                <div class="input-wrapper">
+                    <input 
+                        type="number" 
+                        id="price" 
+                        placeholder="30000" 
+                        min="1000"
+                        step="1000"
+                        required
+                    >
+                </div>
+                <div class="hint">💡 Средний чек в РФ: 30,000-50,000₽. Не занижай!</div>
+            </div>
+
+            <div class="price-suggestions">
+                <div class="suggestion-title">Примеры цен успешных курсов:</div>
+                <div class="suggestion-buttons">
+                    <button type="button" class="suggestion-btn" onclick="setPrice(15000)">15,000₽</button>
+                    <button type="button" class="suggestion-btn" onclick="setPrice(30000)">30,000₽</button>
+                    <button type="button" class="suggestion-btn" onclick="setPrice(50000)">50,000₽</button>
+                    <button type="button" class="suggestion-btn" onclick="setPrice(90000)">90,000₽</button>
+                </div>
+            </div>
+
+            <button type="submit" class="calculate-btn">
+                Рассчитать потенциал 🚀
+            </button>
+        </form>
+
+        <div class="footer-note">
+            Расчет основан на реальных данных запусков<br>и средних показателях конверсии индустрии
+        </div>
+
+        <div id="result" class="result">
+            <div class="result-header">
+                <div class="result-label">Твой потенциал запуска:</div>
+                <div class="result-amount" id="total-income">0 ₽</div>
+                <div class="result-period">за один запуск курса</div>
+            </div>
+
+            <div class="breakdown">
+                <div class="breakdown-title">📊 Откуда эта цифра:</div>
+                
+                <div class="breakdown-item">
+                    <div class="breakdown-label">Потенциальных лидов</div>
+                    <div class="breakdown-value" id="leads">0</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="leads-progress"></div>
+                </div>
+
+                <div class="breakdown-item">
+                    <div class="breakdown-label">Перейдут в Telegram</div>
+                    <div class="breakdown-value" id="telegram">0</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="telegram-progress"></div>
+                </div>
+
+                <div class="breakdown-item">
+                    <div class="breakdown-label">Купят после прогрева (8-10%)</div>
+                    <div class="breakdown-value" id="buyers">0</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="buyers-progress"></div>
+                </div>
+
+                <div class="breakdown-item">
+                    <div class="breakdown-label">Твоя цена курса</div>
+                    <div class="breakdown-value" id="course-price">0 ₽</div>
+                </div>
+            </div>
+
+            <div class="motivation">
+                <div class="motivation-text" id="motivation-text">
+                    💡 <strong id="motivation-message"></strong>
+                </div>
+            </div>
+
+            <div class="motivation" style="background: rgba(239, 68, 68, 0.15); margin-top: 12px;">
+                <div class="motivation-text">
+                    ⏰ <strong>Упущенная выгода:</strong> Если не запускаться — теряешь <span id="yearly-loss" style="color: white;">0₽</span> в год (3-4 запуска)
+                </div>
+            </div>
+
+            <div class="warning">
+                <div class="warning-text">
+                    ⚠️ <strong>Реальность:</strong> Эти деньги уже в твоей аудитории. Telegram + прогрев = конверсия 8-10%. Без системы — упускаешь сотни тысяч.
+                </div>
+            </div>
+
+            <button class="cta-button" onclick="window.location.href='https://t.me/hustlroom'">
+                Хочу запустить курс 🔥
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('calculator-form');
+        const result = document.getElementById('result');
+
+        // Функция установки цены из быстрых кнопок (глобальная)
+        window.setPrice = function(price) {
+            document.getElementById('price').value = price;
+            document.getElementById('price').focus();
+        }
+
+        // Мотивационные сообщения в зависимости от результата
+        const motivationMessages = {
+            low: "Даже с малой аудиторией можно зарабатывать! Главное — правильная система.",
+            medium: "Отличный потенциал! С правильным прогревом в TG ты выйдешь на эту сумму.",
+            high: "Это серьезные деньги, которые ждут тебя. Telegram + прогрев = результат!",
+            huge: "Твоя аудитория — золотая жила! С такой ценой и прогревом — это реально."
+        };
+
+        // Сообщения про ценообразование
+        const pricingMessages = {
+            low: "⚠️ Твоя цена ниже рынка. Средний чек в РФ — 30-50К. Подумай о повышении!",
+            optimal: "✅ Отличная цена! Соответствует рынку и воспринимается как качество.",
+            high: "🔥 Премиум цена! С таким чеком нужна сильная упаковка и социальное доказательство."
+        };
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Получаем данные
+            const followers = parseInt(document.getElementById('followers').value) || 0;
+            const reels = parseInt(document.getElementById('reels').value) || 0;
+            const stories = parseInt(document.getElementById('stories').value) || 0;
+            const price = parseInt(document.getElementById('price').value) || 30000;
+
+            // НОВАЯ ВОРОНКА: Stories → TG → Прогрев → Покупка
+            
+            // 1. Потенциальные лиды из разных источников
+            const leadsFromFollowers = followers * 0.15; // 15% подписчиков увидят запуск
+            const leadsFromReels = reels * 0.03; // 3% охватов = новые лиды
+            const leadsFromStories = stories * 0.08; // 8% просмотров Stories
+
+            const totalLeads = Math.round(leadsFromFollowers + leadsFromReels + leadsFromStories);
+
+            // 2. Переход в Telegram (35% от лидов - реальная цифра для РФ)
+            const telegramSubscribers = Math.round(totalLeads * 0.35);
+
+            // 3. Покупатели (9% конверсия из TG после качественного прогрева)
+            // Это реальная цифра для хорошо прогретой воронки в Telegram
+            const buyers = Math.round(telegramSubscribers * 0.09);
+
+            // 4. Итоговый доход
+            const totalIncome = buyers * price;
+
+            // Отображение результата
+            document.getElementById('total-income').textContent = totalIncome.toLocaleString('ru-RU') + ' ₽';
+            document.getElementById('leads').textContent = totalLeads.toLocaleString('ru-RU');
+            document.getElementById('telegram').textContent = telegramSubscribers.toLocaleString('ru-RU');
+            document.getElementById('buyers').textContent = buyers.toLocaleString('ru-RU');
+            document.getElementById('course-price').textContent = price.toLocaleString('ru-RU') + ' ₽';
+
+            // Прогресс-бары (анимация)
+            setTimeout(() => {
+                document.getElementById('leads-progress').style.width = '90%';
+            }, 100);
+            setTimeout(() => {
+                document.getElementById('telegram-progress').style.width = '70%';
+            }, 300);
+            setTimeout(() => {
+                document.getElementById('buyers-progress').style.width = '50%';
+            }, 500);
+
+            // Мотивационное сообщение в зависимости от суммы
+            let motivationKey;
+            if (totalIncome < 150000) motivationKey = 'low';
+            else if (totalIncome < 400000) motivationKey = 'medium';
+            else if (totalIncome < 800000) motivationKey = 'high';
+            else motivationKey = 'huge';
+
+            let finalMotivation = motivationMessages[motivationKey];
+
+            // Добавляем комментарий про ценообразование
+            let priceKey;
+            if (price < 25000) priceKey = 'low';
+            else if (price >= 25000 && price <= 60000) priceKey = 'optimal';
+            else priceKey = 'high';
+
+            finalMotivation += ' ' + pricingMessages[priceKey];
+
+            document.getElementById('motivation-message').innerHTML = finalMotivation;
+
+            // Расчет упущенной выгоды (3-4 запуска в год)
+            const yearlyLoss = totalIncome * 3.5;
+            document.getElementById('yearly-loss').textContent = Math.round(yearlyLoss).toLocaleString('ru-RU') + '₽';
+
+            // Показываем результат
+            result.classList.add('show');
+            result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+
+        // Автофокус на первое поле при загрузке
+        window.addEventListener('load', () => {
+            document.getElementById('followers').focus();
+        });
+    </script>
+</body>
+</html>
